@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+// Model for Classes
+model Class {
+  id                   String             @id @default(cuid())
+  name                 String
+  description          String?            @db.Text
+  classAdministrator   User               @relation("AdministratorOfClasses", fields: [classAdministratorId], references: [id], onDelete: Cascade)
+  classAdministratorId String
+  students             StudentsInClass[]
+  gradedAssignments    GradedAssignment[]
+  assignments          Assignment[]
+
+  @@index([classAdministratorId])
+}
+
+// Model for Users
+model User {
+  id                     String                        @id @default(uuid())
+  name                   String
+  email                  String                        @unique
+  password               String?
+  authProvider           String
+  classesAsAdministrator Class[]                       @relation("AdministratorOfClasses")
+  classesAsStudent       StudentsInClass[]
+  gradedAssignments      GradedAssignment[]
+  submittedAssignments   StudentsSubmittedAssignment[]
+}
+
+// Model for assignments
+model Assignment {
+  id                String                        @id @default(uuid())
+  name              String                        @db.Text
+  submittedStudents StudentsSubmittedAssignment[]
+  class             Class                         @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId           String
+  questions         Question[]
+
+  @@index([classId])
+}
+
+model Question {
+  id              String     @id @default(cuid())
+  prompt          String     @db.Text
+  assignment      Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId    String
+  choices         Choice[]
+  correctChoiceId String?
+
+  @@index([assignmentId])
+}
+
+model Choice {
+  id              String   @id @default(cuid())
+  value           String   @db.Text
+  isCorrectChoice Boolean
+  question        Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId      String
+
+  @@index([questionId])
+}
+
+model GradedAssignment {
+  id        String @id @default(uuid())
+  grade     Int
+  student   User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+  class     Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId   String
+
+  @@index([studentId])
+  @@index([classId])
+}
+
+// RELATIONSHIP MODELS:
+
+// Relationship between students and classes.
+model StudentsInClass {
+  class     Class  @relation(fields: [classId], references: [id])
+  classId   String
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId String
+
+  @@id([classId, studentId])
+  @@index([classId])
+  @@index([studentId])
+}
+
+// Relationship between students and submitted assignments
+model StudentsSubmittedAssignment {
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  student      User       @relation(fields: [studentId], references: [id])
+  studentId    String
+
+  @@id([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+}

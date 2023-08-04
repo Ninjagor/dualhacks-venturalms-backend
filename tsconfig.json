@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+      "target": "ES2020",                   /* Specify ECMAScript target version */
+      "module": "commonjs",                 /* Specify module code generation */
+      "outDir": "./dist",                   /* Redirect output structure to the "dist" folder */
+      "rootDir": "./src",                   /* Specify the source directory */
+      "strict": true,                       /* Enable all strict type-checking options */
+      "esModuleInterop": true,              /* Allows default imports from CommonJS modules */
+      "forceConsistentCasingInFileNames": true,  /* Ensure consistent casing in file names */
+      "moduleResolution": "node",           /* Use Node.js style module resolution */
+      "resolveJsonModule": true,            /* Allow importing JSON files as modules */
+      "lib": ["ESNext", "DOM"],             /* Include the necessary TypeScript libraries */
+      "types": ["node"],                    /* Include TypeScript definitions for Node.js */
+      "baseUrl": ".",                       /* Base directory for non-relative module names */
+      "paths": {
+        "@/*": ["src/*"]                    /* Custom module aliases, if needed */
+      }
+    },
+    "include": ["src"],                     /* Specify the directories to include for compilation */
+    "exclude": ["node_modules"]             /* Directories to exclude from compilation */
+  }
