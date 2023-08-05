@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { hash, loginWithBcrypt, verifyHash } from "../utils/bcrypt.utils";
+import { hash, loginWithBcrypt } from "../utils/bcrypt.utils";
 import { newJwt } from "../utils/jwt.utils"
 
 const prisma = new PrismaClient();

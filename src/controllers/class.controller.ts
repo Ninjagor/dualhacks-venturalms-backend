@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { newJwt, verifyJwt } from "../utils/jwt.utils";
+import { chunkStudentIdToStudentDetails } from "../utils/converter.utils";
 
 const prisma = new PrismaClient();
 
@@ -96,8 +96,10 @@ const ClassController = {
                 studentId: true
             }
         });
+
+        const updatedData = await chunkStudentIdToStudentDetails(students);
     
-        res.status(200).json({"data": students})
+        res.status(200).json({"data": updatedData,"rawData": students})
     } catch(error) {
         console.error('Error retrieving list', error);
         res.status(500).json({ "error": 'Failed to retrieve list' });

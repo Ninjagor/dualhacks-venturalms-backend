@@ -47,9 +47,9 @@ export async function loginWithBcrypt(email: string, password: string) {
                 return {data: "incorrect method", code: 400}
             }
         } else {
-            return {data: "user not found", code: 404}
+            return { data: "user not found", code: 404 }
         }
-    } catch(e) {
+    } catch(error) {
         throw new Error('Failed to loginWithBcrypt');
     }
 }
