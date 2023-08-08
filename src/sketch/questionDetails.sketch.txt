@@ -1,0 +1,64 @@
+Thoughts on questionDetails...
+
+How will assignments be created?
+
+Thought Process:
+
+Assigment is a table.
+    - ID (assignment ID)
+    - Due date
+    - Assignment Details
+    - ClassID (ID of class that assignment is in)
+
+Question is a table.
+    - Id (Question ID)
+    - Prompt
+    - Assignment ID (Id of assignment that question is in)
+
+Choice is a table.
+    - Id (Choice ID)
+    - Answer
+    - Is Correct?
+    - QuestionID
+
+Example JSON body to creating assignment
+
+{
+    "classCode": "ID Here",
+    "questionDetails": [
+        {
+            "questionPrompt": "What color is grass?",
+            "choices": [
+                {
+                    "answer": "blue",
+                    "isCorrect" false
+                },
+                {
+                    "answer: "green",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "red",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "questionPrompt": "What color is the sky?",
+            "choices": [
+                {
+                    "answer": "blue",
+                    "isCorrect" true
+                },
+                {
+                    "answer: "green",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "red",
+                    "isCorrect": false
+                }
+            ]
+        }
+    ]
+}

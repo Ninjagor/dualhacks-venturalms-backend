@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+// Model for Classes
+model Class {
+  id                   String                @id @default(uuid())
+  name                 String
+  description          String?               @db.Text
+  classAdministrator   User                  @relation("AdministratorOfClasses", fields: [classAdministratorId], references: [id], onDelete: Cascade)
+  classAdministratorId String
+  students             StudentsInClass[]
+  gradedAssignments    GradedAssignment[]
+  averageGradeHistory  AverageGradeHistory[]
+  assignments          Assignment[]
+  posts                ClassPost[]
+
+  @@index([classAdministratorId])
+}
+
+model ClassPost {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id])
+  classId   String
+  creator   User     @relation(fields: [creatorId], references: [id])
+  creatorId String
+
+  replies PostReply[]
+
+  @@index([classId])
+  @@index([creatorId])
+}
+
+model PostReply {
+  id        String    @id @default(cuid())
+  content   String
+  createdAt DateTime  @default(now())
+  post      ClassPost @relation(fields: [postId], references: [id])
+  postId    String
+  creator   User      @relation(fields: [creatorId], references: [id])
+  creatorId String
+
+  @@index([postId])
+  @@index([creatorId])
+}
+
+// Model for Users
+model User {
+  id                     String                        @id @default(uuid())
+  name                   String
+  email                  String                        @unique
+  password               String?
+  authProvider           String
+  classesAsAdministrator Class[]                       @relation("AdministratorOfClasses")
+  classesAsStudent       StudentsInClass[]
+  gradedAssignments      GradedAssignment[]
+  averageGradeHistory    AverageGradeHistory[]
+  submittedAssignments   StudentsSubmittedAssignment[]
+  parents                ParentsOfStudent[]
+  posts                  ClassPost[]
+  replies                PostReply[]
+  userInbox              UserInbox[]
+}
+
+model Parent {
+  id          String             @id @default(uuid())
+  name        String
+  email       String             @unique
+  password    String
+  children    ParentsOfStudent[]
+  parentInbox ParentInbox[]
+}
+
+// Model for assignments
+model Assignment {
+  id                String                        @id @default(uuid())
+  name              String                        @db.Text
+  expiryDate        DateTime
+  submittedStudents StudentsSubmittedAssignment[]
+  class             Class                         @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId           String
+  questions         Question[]
+  gradedAssignment  GradedAssignment[]
+
+  @@index([classId])
+}
+
+model Question {
+  id                  String     @id @default(cuid())
+  prompt              String     @db.Text
+  questionOrderNumber Int
+  assignment          Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId        String
+  choices             Choice[]
+  correctChoiceId     String?
+
+  @@index([assignmentId])
+}
+
+model Choice {
+  id              String   @id @default(cuid())
+  value           String   @db.Text
+  isCorrectChoice Boolean
+  question        Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId      String
+
+  @@index([questionId])
+}
+
+model GradedAssignment {
+  id           String      @id @default(uuid())
+  grade        Int
+  student      User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    String
+  class        Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId      String
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
+  assignmentId String?
+
+  @@index([studentId])
+  @@index([classId])
+  @@index([assignmentId])
+}
+
+model AverageGradeHistory {
+  id           String   @id @default(cuid())
+  averageGrade Int
+  calculatedAt DateTime @default(now())
+  student      User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    String
+  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId      String
+
+  @@index([studentId])
+  @@index([classId])
+}
+
+model ParentInbox {
+  id       String   @id @default(cuid())
+  parent   Parent   @relation(fields: [parentId], references: [id])
+  parentId String
+  message  String   @db.Text
+  sender   String
+  sentAt   DateTime @default(now())
+
+  @@index([parentId])
+}
+
+model UserInbox {
+  id      String   @id @default(cuid())
+  user    User     @relation(fields: [userId], references: [id])
+  userId  String
+  message String   @db.Text
+  sender  String
+  sentAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+// RELATIONSHIP MODELS:
+
+// Relationship between students and classes.
+model StudentsInClass {
+  class     Class  @relation(fields: [classId], references: [id])
+  classId   String
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId String
+
+  @@id([classId, studentId])
+  @@index([classId])
+  @@index([studentId])
+}
+
+model ParentsOfStudent {
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId String
+  parent    Parent @relation(fields: [parentId], references: [id])
+  parentId  String
+
+  @@id([studentId, parentId])
+  @@index([studentId])
+  @@index([parentId])
+}
+
+// Relationship between students and submitted assignments
+model StudentsSubmittedAssignment {
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  student      User       @relation(fields: [studentId], references: [id])
+  studentId    String
+
+  @@id([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+}

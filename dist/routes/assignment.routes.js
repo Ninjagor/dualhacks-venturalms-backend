@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_middleware_1 = __importDefault(require("../middleware/auth.middleware"));
+const admin_middleware_1 = __importDefault(require("../middleware/admin.middleware"));
+const assignment_controller_1 = __importDefault(require("../controllers/assignment.controller"));
+const questions_middleware_1 = __importDefault(require("../middleware/questions.middleware"));
+const submissions_middleware_1 = __importDefault(require("../middleware/submissions.middleware"));
+const roster_middleware_1 = __importDefault(require("../middleware/roster.middleware"));
+const generalRoster_middleware_1 = __importDefault(require("../middleware/generalRoster.middleware"));
+const noparent_middleware_1 = __importDefault(require("../middleware/noparent.middleware"));
+const router = (0, express_1.Router)();
+router.post('/create/assignment', auth_middleware_1.default, noparent_middleware_1.default, admin_middleware_1.default, questions_middleware_1.default, assignment_controller_1.default.createNewAssignment);
+router.post('/create/submission', auth_middleware_1.default, noparent_middleware_1.default, roster_middleware_1.default, submissions_middleware_1.default, assignment_controller_1.default.submitAssignment);
+router.post('/getquestions', auth_middleware_1.default, noparent_middleware_1.default, roster_middleware_1.default, assignment_controller_1.default.getQuestions);
+router.post('/alreadysubmmited', auth_middleware_1.default, noparent_middleware_1.default, roster_middleware_1.default, assignment_controller_1.default.didStudentSubmitAssignment);
+router.post('/getassignments', auth_middleware_1.default, noparent_middleware_1.default, generalRoster_middleware_1.default, assignment_controller_1.default.getAssignmentsFromClass);
+router.post('/getgrades', auth_middleware_1.default, noparent_middleware_1.default, generalRoster_middleware_1.default, assignment_controller_1.default.getGradedAssignments);
+exports.default = router;
